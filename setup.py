@@ -59,12 +59,15 @@ setup(
 	"propka >= 3.5",
 	"requests",
 	"docutils < 0.18",
+<<<<<<< HEAD
 	"torch",
 	"torchani",
 	"ase",
 	"joblib",
 	"scipy",
 	"scikit-learn==1.6.1",
+=======
+>>>>>>> d2a54b1c5a01d7dee4a50232cccd373b77d2cbd9
     ],
     url="http://www.poissonboltzmann.org",
     packages=find_packages(

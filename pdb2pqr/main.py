@@ -14,6 +14,7 @@ import os
 from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
+import requests
 import propka.lib
 import propka.output as pk_out
 import propka.input as pk_in
