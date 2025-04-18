@@ -10,6 +10,7 @@ It was created to avoid cluttering the __init__.py file.
 import logging
 import argparse
 import sys
+import os
 from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
@@ -18,6 +19,7 @@ import propka.output as pk_out
 import propka.input as pk_in
 from propka.parameters import Parameters
 from propka.molecular_container import MolecularContainer
+from pkaani.pkaani import calculate_pka as calculate_pka_pkaani
 from . import aa
 from . import debump
 from . import hydrogens
@@ -25,7 +27,6 @@ from . import forcefield
 from . import biomolecule as biomol
 from . import io
 from .ligand.mol2 import Mol2Molecule
-from .pkaani.pkaani import calculate_pka as calculate_pka_pkaani
 from .utilities import noninteger_charge
 from .config import VERSION, TITLE_STR, CITATIONS, FORCE_FIELDS
 from .config import REPAIR_LIMIT, IGNORED_PROPKA_OPTIONS
@@ -605,26 +606,28 @@ def run_pkaani(args, biomolecule):
     lines = io.print_biomolecule_atoms(
         atomlist=biomolecule.atoms, chainflag=args.keep_chain, pdbfile=True
     )
+    
+    with open("temp_pkaani.pdb", "w") as f:
+        for line in lines:
+            f.write(f"{line}")
 
-    # converting the PDB representation to a file object, and then
-    # passing that file object into pKa-ANI
-    with StringIO() as fileObj:
-        fileObj.writelines(lines)
-        # returning buffer position to beginning so atom data can be read.
-        fileObj.seek(0)
-        pka = calculate_pka_pkaani(fileObj)
-        rows = []
-        for key in pka:
-            row_dict = OrderedDict()
-            row_dict["res_num"] = key[1]
-            row_dict["res_name"] = pka[key][0]
-            row_dict["chain_id"] = key[0]
-            row_dict["pKa"] = pka[key][1]
-            rows.append(row_dict)
 
+    pka = calculate_pka_pkaani(["temp_pkaani.pdb"])["temp_pkaani.pdb"]
+    rows = []
+    for key in pka:
+        row_dict = OrderedDict()
+        row_dict["res_num"] = key[1]
+        row_dict["res_name"] = pka[key][0]
+        row_dict["chain_id"] = key[0]
+        row_dict["pKa"] = pka[key][1]
+        rows.append(row_dict)
+
+    os.remove("temp_pkaani.pdb")
     # only for testing, getting all the pKas so we can see if things are being protonated properly
     # for row in rows:
     #     print(row)
+
+    
     return rows
 
 
