@@ -60,7 +60,7 @@ setup(
 	"requests",
 	"docutils < 0.18",
 	"torch",
-	"torchani==2.2.4",
+	"torchani",
 	"ase",
 	"joblib",
 	"scipy",
